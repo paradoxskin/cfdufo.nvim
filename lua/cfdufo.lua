@@ -1,7 +1,6 @@
 local M = {}
 local bf_win = nil
-local timer = vim.loop.new_timer()
-local waiter = vim.loop.new_timer()
+local timer = vim.loop.new_timer() local waiter = vim.loop.new_timer()
 
 local opt = {
     bufline = {
@@ -12,6 +11,7 @@ local opt = {
         icon = "󱃅\u{00a0}",
         winblend = 100,
     },
+    fcitx5_support = false
 }
 
 local close_win = function()
@@ -123,6 +123,20 @@ function M.setup(user_opt)
         vim.keymap.set('n', opt.bufline.keybind, function()
             bufline()
         end )
+    end
+    if opt.fcitx5_support then
+        local remote = 1
+        vim.api.nvim_create_autocmd("InsertEnter", {pattern = "*", callback = function()
+            if remote == "2" then
+                vim.fn.system("fcitx5-remote -o")
+            end
+        end})
+        vim.api.nvim_create_autocmd("InsertLeave", {pattern = "*", callback = function()
+            remote = string.match(vim.fn.system("fcitx5-remote"), "%d")
+            if remote == "2" then
+                vim.fn.system("fcitx5-remote -c")
+            end
+        end})
     end
 end
 
